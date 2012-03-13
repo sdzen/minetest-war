@@ -27,6 +27,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "common_irrlicht.h"
 #include "jmutex.h"
 #include <ostream>
+#include <exception>
+#include <string>
 #include "clientobject.h"
 #include "utility.h" // For IntervalLimiter
 #include "gamedef.h"
@@ -46,6 +48,23 @@ public:
 	ClientNotReadyException(const char *s):
 		BaseException(s)
 	{}
+};
+
+class ClientError : public std::exception
+{
+public:
+	ClientError(const std::string &s)
+	{
+		m_s = "ClientError: ";
+		m_s += s;
+	}
+	virtual ~ClientError() throw() {}
+	virtual const char *what() const throw()
+	{
+		return m_s.c_str();
+	}
+private:
+	std::string m_s;
 };
 
 struct QueuedMeshUpdate

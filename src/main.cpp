@@ -1800,10 +1800,10 @@ int main(int argc, char *argv[])
 			error_message = L"Socket error (port already in use?)";
 		}
 		catch(ClientError &e)
-+               {
-+                       errorstream<<e.what()<<std::endl;
-+                       error_message = narrow_to_wide(e.what());
-+               }
+		{
+			errorstream<<e.what()<<std::endl;
+			error_message = narrow_to_wide(e.what());
+		}
 		catch(ModError &e)
 		{
 			errorstream<<e.what()<<std::endl;

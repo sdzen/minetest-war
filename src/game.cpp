@@ -342,6 +342,7 @@ PointedThing getPointedThing(Client *client, v3f player_position,
 	f32 mindistance = BS * 1001;  //used for regular blocks
 	f32 maxdistance = -BS * 1001;  //used for free blocks
 	
+	v3s16 pos_i = floatToInt(player_position, BS);
 	v3s16 cam_i = floatToInt(camera_position, BS);
 	v3s16 camdir_i(camera_direction.X>=0?1:-1,
 	camera_direction.Y>=0?1:-1,
