@@ -335,9 +335,17 @@ PointedThing getPointedThing(Client *client, v3f player_position,
 
 	// That didn't work, try to find a pointed at node
 
-	f32 mindistance = BS * 1001;
+	static const bool extBlockSel = g_settings->getBool("extended_block_selecting");
+	bool onlyFreeFound = false;
+	bool freeNodeFound = false;
+
+	f32 mindistance = BS * 1001;  //used for regular blocks
+	f32 maxdistance = -BS * 1001;  //used for free blocks
 	
-	v3s16 pos_i = floatToInt(player_position, BS);
+	v3s16 cam_i = floatToInt(camera_position, BS);
+	v3s16 camdir_i(camera_direction.X>=0?1:-1,
+	camera_direction.Y>=0?1:-1,
+	camera_direction.Z>=0?1:-1);
 
 	/*infostream<<"pos_i=("<<pos_i.X<<","<<pos_i.Y<<","<<pos_i.Z<<")"
 			<<std::endl;*/
@@ -363,8 +371,8 @@ PointedThing getPointedThing(Client *client, v3f player_position,
 		{
 			continue;
 		}
-		if(!isPointableNode(n, client, liquids_pointable))
-			continue;
+		/*if(!isPointableNode(n, client, liquids_pointable))
+			continue;*/
 
 		v3s16 np(x,y,z);
 		v3f npf = intToFloat(np, BS);
@@ -537,26 +545,86 @@ PointedThing getPointedThing(Client *client, v3f player_position,
 
 					if(facebox.intersectsWithLine(shootline))
 					{
-						result.type = POINTEDTHING_NODE;
-						result.node_undersurface = np;
-						result.node_abovesurface = np + dirs[i];
-						mindistance = distance;
+						if(isPointableNode(n, client, liquids_pointable))
+						{
+							result.type = POINTEDTHING_NODE;
+							result.node_undersurface = np;
+							result.node_abovesurface = np + dirs[i];
+							mindistance = distance;
 
-						//hilightbox = facebox;
+							//hilightbox = facebox;
 
-						const float d = 0.502;
-						core::aabbox3d<f32> nodebox
+							const float d = 0.502;
+							core::aabbox3d<f32> nodebox
 								(-BS*d, -BS*d, -BS*d, BS*d, BS*d, BS*d);
-						v3f nodepos_f = intToFloat(np, BS);
-						nodebox.MinEdge += nodepos_f;
-						nodebox.MaxEdge += nodepos_f;
-						hilightbox = nodebox;
-						should_show_hilightbox = true;
+							v3f nodepos_f = intToFloat(np, BS);
+							nodebox.MinEdge += nodepos_f;
+							nodebox.MaxEdge += nodepos_f;
+							hilightbox = nodebox;
+							should_show_hilightbox = true;
+
+							//if no node has been found - we try to find 'fake' pointed node
+							}else if(extBlockSel
+								&& result.type == POINTEDTHING_NOTHING
+								&& distance < (BS*6) //is this enough?
+								&& np != pos_i 
+								&& np != v3s16(pos_i.X,pos_i.Y+1,pos_i.Z) 
+								&& client->getNodeDefManager()->get(n).buildable_to)
+							{
+								bool can_build = false;
+								v3s16 neigh_pos;
+							for(int i=0; i<6; i++)
+							{
+								const v3s16& npos = dirs[i];
+								v3s16 ap = np + npos;
+								try{
+									MapNode an = client->getNode(ap);
+
+									//check if we can build onto this node
+									//FIXME: when it will be possible to build on torches, rails etc. then change .walkable to .pointable
+									if(!client->getNodeDefManager()->get(an).walkable)
+										continue;
+									if(    npos.X==camdir_i.X //is it same direction as camera?
+										|| npos.Y==camdir_i.Y
+										|| npos.Z==camdir_i.Z
+										|| (npos.X != 0 && cam_i.X == np.X) //is it the same axis as camera?
+										|| (npos.Y != 0 && cam_i.Y == np.Y)
+										|| (npos.Z != 0 && cam_i.Z == np.Z) )
+									{
+										can_build = false;
+										break;
+									}
+									can_build = true;
+									neigh_pos = ap;
+								}catch(InvalidPositionException&){}
+							}
+							if(can_build && distance > maxdistance){
+								maxdistance = distance;
+								//nodefound = true;   //we can't do this here!
+								freeNodeFound = true; //instead, we set this and check at the end
+								result.node_undersurface = neigh_pos; //yes, these are swaped!
+								result.node_abovesurface = np;
+								const float d = 0.502;
+								core::aabbox3d<f32> nodebox
+									(-BS*d, -BS*d, -BS*d, BS*d, BS*d, BS*d);
+								v3f nodepos_f = intToFloat(np, BS);
+								nodebox.MinEdge += nodepos_f;
+								nodebox.MaxEdge += nodepos_f;
+								hilightbox = nodebox;
+								//should_show_hilightbox = true;
+							}
+						}
 					}
 				} // if distance < mindistance
 			} // for dirs
 		} // regular block
 	} // for coords
+	
+	if(extBlockSel && result.type == POINTEDTHING_NOTHING && freeNodeFound){
+		result.is_fake = true;
+		result.type = POINTEDTHING_NODE;
+		should_show_hilightbox = true;
+	}
 
 	return result;
 }
@@ -1925,7 +1993,7 @@ void the_game(
 			*/
 			
 			
-			if(nodig_delay_timer <= 0.0 && input->getLeftState())
+			if(!pointed.is_fake && nodig_delay_timer <= 0.0 && input->getLeftState())
 			{
 				if(!digging)
 				{
