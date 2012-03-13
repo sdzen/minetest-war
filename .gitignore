@@ -26,3 +26,5 @@ locale/
 src/lua/build/
 src/lua/CMakeFiles/
 *bak*
+build/
+build/*
