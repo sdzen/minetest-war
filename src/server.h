@@ -43,7 +43,7 @@ class IWritableCraftDefManager;
 /*
 	Some random functions
 */
-v3f findSpawnPos(ServerMap &map);
+v3f findSpawnPos(ServerMap &map, u8 clan);
 
 /*
 	A structure containing the data needed for queueing the fetching

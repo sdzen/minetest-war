@@ -4009,7 +4009,7 @@ void Server::RespawnPlayer(Player *player)
 	srp->setHP(20);
 	bool repositioned = scriptapi_on_respawnplayer(m_lua, srp);
 	if(!repositioned){
-		v3f pos = findSpawnPos(m_env->getServerMap());
+		v3f pos = findSpawnPos(m_env->getServerMap(), player->getClan());
 		player->setPosition(pos);
 		srp->m_last_good_position = pos;
 		srp->m_last_good_position_age = 0;
@@ -4176,7 +4176,7 @@ const ModSpec* Server::getModSpec(const std::string &modname)
 	return NULL;
 }
 
-v3f findSpawnPos(ServerMap &map)
+v3f findSpawnPos(ServerMap &map, u8 clan)
 {
 	//return v3f(50,50,50)*BS;
 
@@ -4188,10 +4188,23 @@ v3f findSpawnPos(ServerMap &map)
 #endif
 
 #if 1
-	// Try to find a good place a few times
-	for(s32 i=0; i<1000; i++)
+	s32 baserange = 1;
+	switch(clan)
 	{
-		s32 range = 1 + i;
+		case 0:
+			baserange = 1;
+			break;
+		case 1:
+			baserange = -1000;
+			break;
+		case 2:
+			baserange = 1000;
+			break;
+	}
+	// Try to find a good place a few times
+	for(s32 i=0; i<50; i++)
+	{
+		s32 range = baserange + i;
 		// We're going to try to throw the player to this position
 		v2s16 nodepos2d = v2s16(-range + (myrand()%(range*2)),
 				-range + (myrand()%(range*2)));
@@ -4299,8 +4312,9 @@ ServerRemotePlayer *Server::emergePlayer(const char *name, u16 peer_id)
 		
 		infostream<<"Server: Finding spawn place for player \""
 				<<name<<"\""<<std::endl;
+		
 
-		v3f pos = findSpawnPos(m_env->getServerMap());
+		v3f pos = findSpawnPos(m_env->getServerMap(), m_env->getPlayer(name)->getClan());
 
 		player = new ServerRemotePlayer(m_env, pos, peer_id, name);
 		ServerRemotePlayer *srp = static_cast<ServerRemotePlayer*>(player);
