@@ -1087,7 +1087,7 @@ void Client::ProcessData(u8 *data, u32 datasize, u16 sender_peer_id)
 			std::string datastring((char*)&data[2], datasize-2);
 			// Throw them in an istringstream
 			std::istringstream is(datastring, std::ios_base::binary);
-			std::istringstream iscopy(datastring, std::ios_base::binary);
+			//std::istringstream iscopy(datastring, std::ios_base::binary);
 
 			// Read stuff
 			

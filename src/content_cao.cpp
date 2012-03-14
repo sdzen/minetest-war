@@ -2103,7 +2103,7 @@ public:
 		infostream<<"PlayerCAO: Got init data"<<std::endl;
 		
 		std::istringstream is(data, std::ios::binary);
-		std::istringstream iscopy(data, std::ios::binary);
+		//std::istringstream iscopy(data, std::ios::binary);
 		// version
 		u8 version = readU8(is);
 		// check version
