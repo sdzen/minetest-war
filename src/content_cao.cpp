@@ -2061,6 +2061,7 @@ private:
 	scene::IMeshSceneNode *m_body, *m_head, *m_leg_l, *m_leg_r, *m_arm_l, *m_arm_r;
 	scene::ITextSceneNode* m_text;
 	std::string m_name;
+	std::string playerimage;
 	v3f m_position;
 	v3f m_old_position;
 	float m_leg_rot;
@@ -2068,6 +2069,7 @@ private:
 	float m_speed;
 	float m_pitch;
 	float m_yaw;
+	u8 clan;
 	SmoothTranslator pos_translator;
 	SmoothTranslator old_pos_translator;
 	SmoothTranslator head_translator;
@@ -2101,6 +2103,7 @@ public:
 		infostream<<"PlayerCAO: Got init data"<<std::endl;
 		
 		std::istringstream is(data, std::ios::binary);
+		std::istringstream iscopy(data, std::ios::binary);
 		// version
 		u8 version = readU8(is);
 		// check version
@@ -2116,6 +2119,10 @@ public:
 		m_pitch = updateHeadPitch(m_pitch);
 		// yaw
 		m_yaw = readF1000(is);
+		// clan
+		clan = readF1000(is);
+		// player image
+		playerimage = "mt_" + itos(clan) + ".png";
 
 		pos_translator.init(m_position);
 		old_pos_translator.init(m_old_position);
@@ -2850,7 +2857,7 @@ public:
 			scene::IMesh *mesh = m_body->getMesh();
 			if(mesh){
 				{
-					std::string tname = "mt_player.png";
+					std::string tname = playerimage;
 					tname += mod;
 					scene::IMeshBuffer *buf = mesh->getMeshBuffer(0);
 					buf->getMaterial().setTexture(0,
@@ -2863,7 +2870,7 @@ public:
 			scene::IMesh *mesh = m_head->getMesh();
 			if(mesh){
 				{
-					std::string tname = "mt_player.png";
+					std::string tname = playerimage;
 					tname += mod;
 					scene::IMeshBuffer *buf = mesh->getMeshBuffer(0);
 					buf->getMaterial().setTexture(0,
@@ -2876,7 +2883,7 @@ public:
 			scene::IMesh *mesh = m_leg_l->getMesh();
 			if(mesh){
 				{
-					std::string tname = "mt_player.png";
+					std::string tname = playerimage;
 					tname += mod;
 					scene::IMeshBuffer *buf = mesh->getMeshBuffer(0);
 					buf->getMaterial().setTexture(0,
@@ -2889,7 +2896,7 @@ public:
 			scene::IMesh *mesh = m_leg_r->getMesh();
 			if(mesh){
 				{
-					std::string tname = "mt_player.png";
+					std::string tname = playerimage;
 					tname += mod;
 					scene::IMeshBuffer *buf = mesh->getMeshBuffer(0);
 					buf->getMaterial().setTexture(0,
@@ -2902,7 +2909,7 @@ public:
 			scene::IMesh *mesh = m_arm_l->getMesh();
 			if(mesh){
 				{
-					std::string tname = "mt_player.png";
+					std::string tname = playerimage;
 					tname += mod;
 					scene::IMeshBuffer *buf = mesh->getMeshBuffer(0);
 					buf->getMaterial().setTexture(0,
@@ -2915,7 +2922,7 @@ public:
 			scene::IMesh *mesh = m_arm_r->getMesh();
 			if(mesh){
 				{
-					std::string tname = "mt_player.png";
+					std::string tname = playerimage;
 					tname += mod;
 					scene::IMeshBuffer *buf = mesh->getMeshBuffer(0);
 					buf->getMaterial().setTexture(0,

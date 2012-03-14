@@ -44,6 +44,8 @@ Player::Player(IGameDef *gamedef):
 	inventory(gamedef->idef()),
 	inventory_backup(NULL),
 	hp(20),
+	clan(0),
+	playerimage("mt_0.png"),
 	peer_id(PEER_ID_INEXISTENT),
 // protected
 	m_gamedef(gamedef),
@@ -124,6 +126,8 @@ void Player::serialize(std::ostream &os)
 	args.setFloat("yaw", m_yaw);
 	args.setV3F("position", m_position);
 	args.setS32("hp", hp);
+	args.setS32("clan", clan);
+	args.set("playerimage", playerimage);
 
 	args.writeLines(os);
 
@@ -164,6 +168,16 @@ void Player::deSerialize(std::istream &is)
 		hp = args.getS32("hp");
 	}catch(SettingNotFoundException &e){
 		hp = 20;
+	}
+	try{
+		clan = args.getS32("clan");
+	}catch(SettingNotFoundException &e){
+		clan = 0;
+	}
+	try{
+		playerimage = args.get("playerimage");
+	}catch(SettingNotFoundException &e){
+		playerimage = "mt_0.png";
 	}
 
 	inventory.deSerialize(is);

@@ -1087,6 +1087,7 @@ void Client::ProcessData(u8 *data, u32 datasize, u16 sender_peer_id)
 			std::string datastring((char*)&data[2], datasize-2);
 			// Throw them in an istringstream
 			std::istringstream is(datastring, std::ios_base::binary);
+			std::istringstream iscopy(datastring, std::ios_base::binary);
 
 			// Read stuff
 			
@@ -1114,6 +1115,7 @@ void Client::ProcessData(u8 *data, u32 datasize, u16 sender_peer_id)
 				is.read(buf, 1);
 				u8 type = readU8((u8*)buf);
 				std::string data = deSerializeLongString(is);
+				//std::string data = deSerializeLongString(iscopy);
 				// Add it
 				{
 					//JMutexAutoLock envlock(m_env_mutex); //bulk comment-out

@@ -29,6 +29,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <jmutex.h>
 #include <jmutexautolock.h>
 #include <cstring>
+#include <cstdlib>
 
 #include "common_irrlicht.h"
 #include "debug.h"

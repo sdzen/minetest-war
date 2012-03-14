@@ -162,6 +162,8 @@ std::string ServerRemotePlayer::getClientInitializationData()
 	writeF1000(os, getPitch());
 	// yaw
 	writeF1000(os, getYaw());
+	// clan
+	writeF1000(os, getClan());
 	return os.str();
 }
 

@@ -22,6 +22,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "common_irrlicht.h"
 #include "inventory.h"
+#include <string>
+#include <sstream>
+#include "utility.h"
 
 #define PLAYERNAME_SIZE 20
 
@@ -52,6 +55,22 @@ public:
 	void setSpeed(v3f speed)
 	{
 		m_speed = speed;
+	}
+	
+	void setClan(u8 clanu)
+	{
+		clan = clanu;
+		playerimage = std::string("mt_" + itos(clan) + ".png");
+	}
+	
+	u8 getClan()
+	{
+		return clan;
+	}
+	
+	std::string getPlayerImage()
+	{
+		return playerimage;
 	}
 	
 	// Y direction is ignored
@@ -157,6 +176,11 @@ public:
 	Inventory *inventory_backup;
 
 	u16 hp;
+
+	// Clans: 0 = normal (shouldn't exist, but just in the case of hackers), 1 = Secret Agents, 2 = Ninjas
+	u8 clan;
+
+	std::string playerimage;
 
 	u16 peer_id;
 
